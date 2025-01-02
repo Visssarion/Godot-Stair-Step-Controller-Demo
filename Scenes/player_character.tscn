@@ -1,7 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://bkh244ybrnt3j"]
+[gd_scene load_steps=9 format=3 uid="uid://bkh244ybrnt3j"]
 
 [ext_resource type="Script" path="res://Scripts/player_character.gd" id="1_t2afb"]
+[ext_resource type="Script" path="res://Scripts/character_physics_components/pre_physics.gd" id="2_hbgi4"]
 [ext_resource type="Material" uid="uid://cue16i6jlwjtl" path="res://Assets/textures/GridOrangeTile.tres" id="2_nrduh"]
+[ext_resource type="Script" path="res://Scripts/character_physics_components/post_physics.gd" id="3_8cw3p"]
+[ext_resource type="Script" path="res://Scripts/character_physics_components/movement_physics.gd" id="4_lcyep"]
+[ext_resource type="Script" path="res://Scripts/character_physics_components/gravity_physics.gd" id="4_tjhfq"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_t7df6"]
 size = Vector3(1, 2, 1)
@@ -13,6 +17,24 @@ material = ExtResource("2_nrduh")
 floor_stop_on_slope = false
 floor_snap_length = 0.5
 script = ExtResource("1_t2afb")
+
+[node name="PlayerPhysicsNodes" type="Node" parent="."]
+
+[node name="PrePhysicsCaller" type="Node" parent="PlayerPhysicsNodes" node_paths=PackedStringArray("character")]
+script = ExtResource("2_hbgi4")
+character = NodePath("../..")
+
+[node name="MovementPhysics" type="Node" parent="PlayerPhysicsNodes" node_paths=PackedStringArray("character")]
+script = ExtResource("4_lcyep")
+character = NodePath("../..")
+
+[node name="GravityPhysics" type="Node" parent="PlayerPhysicsNodes" node_paths=PackedStringArray("character")]
+script = ExtResource("4_tjhfq")
+character = NodePath("../..")
+
+[node name="PostPhysicsCaller" type="Node" parent="PlayerPhysicsNodes" node_paths=PackedStringArray("character")]
+script = ExtResource("3_8cw3p")
+character = NodePath("../..")
 
 [node name="PlayerCollision" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_t7df6")
@@ -32,6 +54,9 @@ top_level = true
 cull_mask = 1048573
 current = true
 fov = 90.0
+
+[node name="Camera3D" type="Camera3D" parent="."]
+current = true
 
 [node name="PlayerHUD" type="Control" parent="."]
 layout_mode = 3
