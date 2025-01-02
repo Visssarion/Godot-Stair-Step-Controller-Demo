@@ -1,51 +1,78 @@
 class_name StairsCharacterBody3D
 extends CharacterBody3D
+## CharacterBody3D that automatically controlls movement up and down the stairs
+##
+## How to use:[br][br]
+## Call [code]_pre_physics_process[/code] once at the start of [code]_physics_process[/code];[br]
+## Set [code]velocity[/code] to whatever value you wish to move;[br]
+## Call [code]_post_physics_process[/code] once at the end of [code]_physics_process[/code].[br]
+##[br][br][br]
 ## Credits:
-# Special thanks to Majikayo Games for original solution to stair_step_down!
-# (https://youtu.be/-WjM1uksPIk)
-#
-# Special thanks to Myria666 for their paper on Quake movement mechanics (used for stair_step_up)!
-# (https://github.com/myria666/qMovementDoc)
-#
-# Special thanks to Andicraft for their help with implementation stair_step_up!
-# (https://github.com/Andicraft)
-
-## Notes:
-# 0. All shape colliders are supported. Although, I would recommend Capsule colliders for enemies
-#		as it works better with the Navigation Meshes. Its up to you what shape you want to use
-#		for players.
-#
-# 1. To adjust the step-up/down height, just change the MAX_STEP_UP/MAX_STEP_DOWN values below.
-#
-# 2. This uses Jolt Physics as the default Godot Physics has a few bugs:
-#	1: Small gaps that you should be able to fit through both ways will block you in Godot Physics.
-#		You can see this demonstrated with the floating boxes in front of the big stairs.
-#	2: Walking into some objects may push the player downward by a small amount which causes
-#		jittering and causes the floor to be detected as a step.
-#	TLDR: This still works with default Godot Physics, although it feels a lot better in Jolt Physics.
+##[br][br]
+## Special thanks to [url=https://www.youtube.com/@MajikayoGames]Majikayo Games[/url]
+## for [url=https://youtu.be/-WjM1uksPIk]original solution to stair_step_down[/url]!
+##[br][br]
+## Special thanks to [url=https://github.com/myria666/]Myria666[/url]
+## for [url=https://github.com/myria666/qMovementDoc]her paper on Quake movement mechanics[/url]
+## (used for stair_step_up)!
+##[br][br]
+## Special thanks to [url=https://github.com/Andicraft]Andicraft[/url]
+## for her help with implementation stair_step_up!
+##[br][br]
+## Special thanks to [url=https://github.com/JheKWall/]JheKWall[/url] for his
+## [url=https://github.com/JheKWall/Godot-Stair-Step-Demo]original character controller demo[/url]
+## this is based on!
+## (https://github.com/Andicraft)
+##[br][br]
+## [url=https://github.com/Visssarion]Vissa[/url] cleaned this controller
+## so that it could be used in Entity Component System or via Node Inheritance
+## [br][br][br]
+## Notes:[br][br]
+## 0. All shape colliders are supported. Although, I would recommend Capsule colliders for enemies
+##		as it works better with the Navigation Meshes. Its up to you what shape you want to use
+##		for players.
+##[br][br]
+## 1. To adjust the step-up/down height, just change the MAX_STEP_UP/MAX_STEP_DOWN values below.
+##[br][br]
+## 2. This uses Jolt Physics as the default Godot Physics has a few bugs:[br]
+##	2.1: Small gaps that you should be able to fit through both ways will block you in Godot Physics.
+##		You can see this demonstrated with the floating boxes in front of the big stairs.[br]
+##	2.2: Walking into some objects may push the player downward by a small amount which causes
+##		jittering and causes the floor to be detected as a step.[br]
+##	TLDR: This still works with default Godot Physics, although it feels a lot better in Jolt Physics.
 
 #region ANNOTATIONS ################################################################################
+@export_category("Character's Collider")
+## Collider that will be used for body's stair collision
+@export var PLAYER_COLLIDER: CollisionShape3D
 @export_category("Character Settings")
+## Max height body will go up stairs.
 @export var MAX_STEP_UP := 0.5			# Maximum height in meters the player can step up.
+## Max height body will go down stairs.
 @export var MAX_STEP_DOWN := -0.5		# Maximum height in meters the player can step down.
 
 @export_category("Debug Settings")
+## Set to [code]true[/code] for body to print debug info for upward calculations
 @export var STEP_DOWN_DEBUG := false	# Enable these to get detailed info on the step down/up process.
+## Set to [code]true[/code] for body to print debug info for downward calculations
 @export var STEP_UP_DEBUG := false
 
-# check smooth_camera_jitter to see how make player's cam smooth
-## Node References
-@onready var PLAYER_COLLIDER = $PlayerCollision
+# Node References
+
 #endregion
 
 #region VARIABLES ##################################################################################
+## Returns [code]true[/code] if body is grounded
 var is_grounded := true					# If player is grounded this frame
+## Returns [code]true[/code] if body was grounded last physics frame
 var was_grounded := true				# If player was grounded last frame
-
+## Calculated horizontal direction that body wants to move.[br]
+## DO NOT USE THIS TO SET VELOCITY. Set [code]velocity[/code] instead.[br]
+## [code]wish_dir[/code] is a left over from old implementation, so leaving it prevents stuff from breaking
 var wish_dir := Vector3.ZERO			# Player input (WASD) direction
 
-var vertical := Vector3(0, 1, 0)		# Shortcut for converting vectors to vertical
-var horizontal := Vector3(1, 0, 1)		# Shortcut for converting vectors to horizontal
+const vertical := Vector3(0, 1, 0)		# Shortcut for converting vectors to vertical
+const horizontal := Vector3(1, 0, 1)		# Shortcut for converting vectors to horizontal
 #endregion
 
 #region IMPLEMENTATION #############################################################################
@@ -205,7 +232,10 @@ func stair_step_up():
 	global_pos.y = test_transform.origin.y
 	global_position = global_pos
 
-## Debugging #######################################################################################
+
+#endregion
+
+#region DEBUG ####################################################################################
 
 # Debug: Stair Step Down
 func _debug_stair_step_down(param, value):
@@ -240,11 +270,6 @@ func _debug_stair_step_up(param, value):
 			print("SSU: Exited due to non-floor stepping")
 		"SSU_APPLIED":
 			print("SSU: Player moved up by ", value, " units")
-
-
-#endregion
-
-#region SIGNALS ####################################################################################
 
 
 #endregion

@@ -15,10 +15,11 @@ size = Vector3(1, 2, 1)
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_bs6ld"]
 material = ExtResource("2_nrduh")
 
-[node name="PlayerCharacter" type="CharacterBody3D"]
+[node name="PlayerCharacter" type="CharacterBody3D" node_paths=PackedStringArray("PLAYER_COLLIDER")]
 floor_stop_on_slope = false
 floor_snap_length = 0.5
 script = ExtResource("1_t2afb")
+PLAYER_COLLIDER = NodePath("PlayerCollision")
 
 [node name="PlayerPhysicsNodes" type="Node" parent="."]
 
