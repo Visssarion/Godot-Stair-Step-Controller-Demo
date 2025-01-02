@@ -50,7 +50,6 @@ var horizontal := Vector3(1, 0, 1)		# Shortcut for converting vectors to horizon
 
 #region IMPLEMENTATION #############################################################################
 
-
 # Function: Handle settings made before physical movements of this body
 func _pre_physics_process():
 	# Lock player collider rotation
@@ -185,12 +184,16 @@ func stair_step_up():
 
 	# 5. Check floor normal for un-walkable slope
 	var surface_normal = body_test_result.get_collision_normal()
-	print("SSU: Surface check: ", snappedf(surface_normal.angle_to(vertical), 0.001), " vs ", floor_max_angle)#!
+
+	if STEP_UP_DEBUG:
+		print("SSU: Surface check: ", snappedf(surface_normal.angle_to(vertical), 0.001), " vs ", floor_max_angle)#!
 	if (snappedf(surface_normal.angle_to(vertical), 0.001) > floor_max_angle):
 		_debug_stair_step_up("SSU_EXIT_3", null)													## DEBUG
 
 		return
-	print("SSU: Walkable")#!
+
+	if STEP_UP_DEBUG:
+		print("SSU: Walkable")#!
 	_debug_stair_step_up("SSU_TEST_POS", test_transform)											## DEBUG
 
 	# 6. Move player up
