@@ -24,30 +24,9 @@ extends CharacterBody3D
 #	TLDR: This still works with default Godot Physics, although it feels a lot better in Jolt Physics.
 
 #region ANNOTATIONS ################################################################################
-@export_category("Player Settings")
-@export var PLAYER_SPEED := 10.0		# Player's movement speed.
-@export var JUMP_VELOCITY := 6.0		# Player's jump velocity.
-
-@export var MAX_STEP_UP := 0.5			# Maximum height in meters the player can step up.
-@export var MAX_STEP_DOWN := -0.5		# Maximum height in meters the player can step down.
-
-@export var MOUSE_SENSITIVITY := 0.4	# Mouse movement sensitivity.
-@export var CAMERA_SMOOTHING := 18.0	# Amount of camera smoothing.
-
-@export_category("Debug Settings")
-@export var STEP_DOWN_DEBUG := false	# Enable these to get detailed info on the step down/up process.
-@export var STEP_UP_DEBUG := false
-
+# check smooth_camera_jitter to see how make player's cam smooth
 ## Node References
 @onready var PLAYER_COLLIDER = $PlayerCollision
-
-@onready var CAMERA_NECK = $CameraNeck
-@onready var CAMERA_HEAD = $CameraNeck/CameraHead
-@onready var PLAYER_CAMERA = $CameraNeck/CameraHead/PlayerCamera
-
-@onready var DEBUG_MENU = $PlayerHUD/DebugMenu
-@onready var MAX_STEP_UP_LABEL = $PlayerHUD/DebugMenu/Margins/VBox/MaxStepUpLabel
-@onready var MAX_STEP_DOWN_LABEL = $PlayerHUD/DebugMenu/Margins/VBox/MaxStepDownLabel
 #endregion
 
 #region VARIABLES ##################################################################################
