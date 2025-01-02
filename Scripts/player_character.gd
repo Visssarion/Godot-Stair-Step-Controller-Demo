@@ -24,6 +24,14 @@ extends CharacterBody3D
 #	TLDR: This still works with default Godot Physics, although it feels a lot better in Jolt Physics.
 
 #region ANNOTATIONS ################################################################################
+@export_category("Character Settings")
+@export var MAX_STEP_UP := 0.5			# Maximum height in meters the player can step up.
+@export var MAX_STEP_DOWN := -0.5		# Maximum height in meters the player can step down.
+
+@export_category("Debug Settings")
+@export var STEP_DOWN_DEBUG := false	# Enable these to get detailed info on the step down/up process.
+@export var STEP_UP_DEBUG := false
+
 # check smooth_camera_jitter to see how make player's cam smooth
 ## Node References
 @onready var PLAYER_COLLIDER = $PlayerCollision
@@ -37,48 +45,10 @@ var wish_dir := Vector3.ZERO			# Player input (WASD) direction
 
 var vertical := Vector3(0, 1, 0)		# Shortcut for converting vectors to vertical
 var horizontal := Vector3(1, 0, 1)		# Shortcut for converting vectors to horizontal
-
-var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")		# Default Gravity
 #endregion
 
 #region IMPLEMENTATION #############################################################################
-# Function: On scene load
-func _ready():
-	# Capture mouse on start
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
-# Function: Handle defined inputs
-func _input(event):
-	# Handle ESC input
-	if event.is_action_pressed("mouse_toggle"):
-		_toggle_mouse_mode()
-
-	# Handle Debug input
-	if event.is_action_pressed("debug_toggle"):
-		DEBUG_MENU.visible = !DEBUG_MENU.visible
-
-	# Handle Mouse input
-	if event is InputEventMouseMotion and (Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED):
-		_camera_input(event)
-
-# Function: Handle camera input
-func _camera_input(event):
-	var y_rotation = deg_to_rad(-event.relative.x * MOUSE_SENSITIVITY)
-	rotate_y(y_rotation)
-	CAMERA_HEAD.rotate_y(y_rotation)
-	PLAYER_CAMERA.rotate_x(deg_to_rad(-event.relative.y * MOUSE_SENSITIVITY))
-	PLAYER_CAMERA.rotation.x = clamp(PLAYER_CAMERA.rotation.x, deg_to_rad(-90), deg_to_rad(90))
-
-# Function: Handle mouse mode toggling
-func _toggle_mouse_mode():
-	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	else:
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-
-# Function: Handle frame-based processes
-func _process(_delta):
-	_debug_update_debug()
 
 # Function: Handle frame-based physics processes
 func _physics_process(delta):
@@ -93,22 +63,6 @@ func _physics_process(delta):
 	else:
 		is_grounded = false
 
-	# Get player input direction
-	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-	wish_dir = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-
-	# Handle Gravity
-	if !is_on_floor():
-		velocity.y -= gravity * delta
-
-	# Handle Jump
-	if Input.is_action_pressed("move_jump"):
-		velocity.y = JUMP_VELOCITY
-
-	# Handle WASD Movement
-	velocity.x = wish_dir.x * PLAYER_SPEED
-	velocity.z = wish_dir.z * PLAYER_SPEED
-
 	# Stair step up
 	stair_step_up()
 
@@ -118,8 +72,6 @@ func _physics_process(delta):
 	# Stair step down
 	stair_step_down()
 
-	# Smooth Camera
-	smooth_camera_jitter(delta)
 
 # Function: Handle walking down stairs
 func stair_step_down():
@@ -243,17 +195,6 @@ func stair_step_up():
 	global_pos.y = test_transform.origin.y
 	global_position = global_pos
 
-# Function: Smooth camera jitter
-func smooth_camera_jitter(delta):
-	CAMERA_HEAD.global_position.x = CAMERA_NECK.global_position.x
-	CAMERA_HEAD.global_position.y = lerpf(CAMERA_HEAD.global_position.y, CAMERA_NECK.global_position.y, CAMERA_SMOOTHING * delta)
-	CAMERA_HEAD.global_position.z = CAMERA_NECK.global_position.z
-
-	# Limit how far camera can lag behind its desired position
-	CAMERA_HEAD.global_position.y = clampf(CAMERA_HEAD.global_position.y,
-										-CAMERA_NECK.global_position.y - 1,
-										CAMERA_NECK.global_position.y + 1)
-
 ## Debugging #######################################################################################
 
 # Debug: Stair Step Down
@@ -290,37 +231,10 @@ func _debug_stair_step_up(param, value):
 		"SSU_APPLIED":
 			print("SSU: Player moved up by ", value, " units")
 
-# Debug: Update Debug Menu
-func _debug_update_debug():
-	MAX_STEP_UP_LABEL.text = "MAX STEP UP = " + str(MAX_STEP_UP)
-	MAX_STEP_DOWN_LABEL.text = "MAX STEP DOWN = " + str(MAX_STEP_DOWN)
 
 #endregion
 
 #region SIGNALS ####################################################################################
-# Button: Change MAX_STEP_UP/MAX_STEP_DOWN to 0.5/-0.5
-func _on_step_0_5_pressed():
-	MAX_STEP_UP = 0.5
-	MAX_STEP_DOWN = -0.5
 
-# Button: Change MAX_STEP_UP/MAX_STEP_DOWN to 1/-1
-func _on_step_1_pressed():
-	MAX_STEP_UP = 1
-	MAX_STEP_DOWN = -1
-
-# Button: Change MAX_STEP_UP/MAX_STEP_DOWN to 2/-2
-func _on_step_2_pressed():
-	MAX_STEP_UP = 2
-	MAX_STEP_DOWN = -2
-
-# Button: Change MAX_STEP_UP/MAX_STEP_DOWN to 4/-4
-func _on_step_4_pressed():
-	MAX_STEP_UP = 4
-	MAX_STEP_DOWN = -4
-
-# Button: Change MAX_STEP_UP/MAX_STEP_DOWN to 100/-100
-func _on_step_100_pressed():
-	MAX_STEP_UP = 100
-	MAX_STEP_DOWN = -100
 
 #endregion
