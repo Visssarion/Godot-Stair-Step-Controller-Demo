@@ -1,3 +1,4 @@
+class_name StairsCharacterBody3D
 extends CharacterBody3D
 ## Credits:
 # Special thanks to Majikayo Games for original solution to stair_step_down!
