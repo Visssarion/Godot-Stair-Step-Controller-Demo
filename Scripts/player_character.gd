@@ -50,8 +50,8 @@ var horizontal := Vector3(1, 0, 1)		# Shortcut for converting vectors to horizon
 #region IMPLEMENTATION #############################################################################
 
 
-# Function: Handle frame-based physics processes
-func _physics_process(delta):
+# Function: Handle settings made before physical movements of this body
+func _pre_physics_process():
 	# Lock player collider rotation
 	PLAYER_COLLIDER.global_rotation = Vector3.ZERO
 
@@ -63,6 +63,13 @@ func _physics_process(delta):
 	else:
 		is_grounded = false
 
+
+# Function: Handle movement after velocity has been set
+func _post_physics_process():
+	# Retrieve wish_dir from velocity that was passed here.
+	# wish_dir is a left over from old implementation, so getting it from velocity prevents stuff from breaking
+	wish_dir = Vector3(velocity.x, 0, velocity.z).normalized()
+
 	# Stair step up
 	stair_step_up()
 
@@ -71,7 +78,6 @@ func _physics_process(delta):
 
 	# Stair step down
 	stair_step_down()
-
 
 # Function: Handle walking down stairs
 func stair_step_down():
